@@ -1,5 +1,7 @@
 #Import requests library to make network requests.
 import requests,urllib,colorama
+from textblob import TextBlob
+from textblob.sentiments import NaiveBayesAnalyzer
 #We have imported color file to make our project look attractive.
 from termcolor import *
 #form file named keys we have to import access token
@@ -232,6 +234,33 @@ def post_liked(insta_username):
 
 
 
+
+def recently_liked_post():
+
+    request_url = (BASE_URL + 'users/self/media/liked?access_token==%s') % (app_access_token)
+    payload = {'access_token': app_access_token}
+    recently_liked = requests.get(request_url, payload).json()
+
+    if recently_liked ['meta']['code'] == 200:
+
+        if len(recently_liked['data']):
+#if condition will satesfied this will compare and save the respective post in jpeg formate.
+            image_name = recently_liked['data'][0]['id'] + '.jpeg'
+            image_url = recently_liked['data'][0]['images']['standard_resolution']['url']
+            urllib.urlretrieve(image_url, image_name)
+            print 'Image has been successufully downloaded'
+
+        else:
+            print 'Post not exist'
+
+    else:
+        print 'Exit'
+        exit()
+    choice()
+
+
+
+
 #function for commenting in a post.
 def comment_a_post(insta_username):
 
@@ -249,6 +278,10 @@ def comment_a_post(insta_username):
 
     else:
         cprint('ERROR','red')
+
+
+
+
 
 
 
@@ -281,8 +314,8 @@ def start_bot():
         cprint("c.Get your own recent post",'yellow')
         cprint("d.Get the recent post of a user by username",'yellow')
         cprint("e.Post liked",'yellow')
-        cprint("f.Comment on users post",'yellow')
-        cprint("g.count likes",'yellow')
+        cprint("f.Recently liked post by the user", 'yellow')
+        cprint("g.Comment on users post",'yellow')
         cprint("q.Exit",'yellow')
 
         choice = raw_input("Enter you choice: ")
@@ -305,13 +338,11 @@ def start_bot():
             post_liked(insta_username)
 
         elif choice == "f":
+            recently_liked_post()
 
+        elif choice == "g":
             insta_username = raw_input("Enter username : ")
-
             comment_a_post(insta_username)
-        #elif choice == "g":
-            #insta_username = raw_input("Enter username : ")
-            #count_likes()
 
         elif choice == "q":
             exit()
