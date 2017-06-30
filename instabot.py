@@ -102,7 +102,6 @@ def user_info(insta_username):
 
 #this will will serch for user id from my access token.
     request_url = (BASE_URL + 'users/%s?access_token=%s') % (user_id, app_access_token)
-    print 'GET request url : %s' % (request_url)
     user_info = requests.get(request_url).json()
 
 #here if condition becomes equal to 200 will print details of the user.
@@ -180,6 +179,7 @@ def get_user_post(insta_username):
     else:
         cprint('Exit','red')
         exit()
+
     choice()
 
 
@@ -196,7 +196,6 @@ def get_post_id(insta_username):
         exit()
 
     request_url = (BASE_URL + 'users/%s/media/recent/?access_token=%s') % (user_id,app_access_token)
-    print 'GET request url : %s' % (request_url)
     own_media = requests.get(request_url).json()
 
     if own_media['meta']['code']== 200:
@@ -218,20 +217,19 @@ def get_post_id(insta_username):
 #function for liking others post.
 def post_liked(insta_username):
 
-#this will get post id from user id.
     media_id = get_post_id(insta_username)
     request_url = (BASE_URL + 'media/%s/likes') % (media_id)
+    payload = {"access_token": app_access_token}
+    print 'POST request url : %s' % (request_url)
+    post_a_like = requests.post(request_url, payload).json()
 
-#payload is here for saving or say for storing the data.
-    payload = {'access_token': app_access_token }
-    liked_post = requests.get(request_url , payload).json()
-
-    if liked_post['meta']['code'] == 200:
-        cprint('Successfully liked','yellow')
+    if post_a_like['meta']['code'] == 200:
+        print 'Like was successful!'
 
     else:
-        cprint('ERROR','red')
+        print 'Your like was unsuccessful. Try again!'
 
+    choice()
 
 
 
@@ -256,6 +254,7 @@ def recently_liked_post():
     else:
         print 'Exit'
         exit()
+
     choice()
 
 
@@ -279,26 +278,49 @@ def comment_a_post(insta_username):
     else:
         cprint('ERROR','red')
 
+    choice()
 
 
 
+def dlt_negative_comment(insta_username):
 
+    media_id = get_post_id(insta_username)
+    request_url = (BASE_URL + 'media/%s/comments/?access_token=%s') % (media_id, app_access_token)
+    comment_info = requests.get(request_url).json()
 
+    if comment_info['meta']['code'] == 200:
 
-"""
-def count_likes(insta_username):
-    #media_id = get_post_id(insta_username)
-    request_url =(BASE_URL + 'users/self/media/liked?access_token=') % (app_access_token)
-    like_count = requests.get(request_url).json()
-    if like_count['meta']['code'] == 200:
-        if len(like_count['data']):
-            print like_count['data'][0]['code']
+        if len(comment_info['data']):
+#Here's a naive implementation of how to delete the negative comments :)
+
+            for x in range(0, len(comment_info['data'])):
+                comment_id = comment_info['data'][x]['id']
+                comment_text = comment_info['data'][x]['text']
+                blob = TextBlob(comment_text, analyzer=NaiveBayesAnalyzer())
+
+                if (blob.sentiment.p_neg > blob.sentiment.p_pos):
+                    print 'Negative comment : %s' % (comment_text)
+                    delete_url = (BASE_URL + 'media/%s/comments/%s/?access_token=%s') % (media_id, comment_id, app_access_token)
+                    delete_info = requests.delete(delete_url).json()
+
+                    if delete_info['meta']['code'] == 200:
+                        cprint('Comment successfully deleted!\n','green')
+
+                    else:
+                        cprint('Unable to delete comment!','blue')
+
+                else:
+                    cprint('Positive comment','yellow')
+
         else:
-            print 'no likes'
+            cprint('There are no existing comments on the post!','yellow')
+
     else:
-        print 'ERROR'
-        exit()
-"""
+        cprint('ERROR!','red')
+
+    choice()
+
+
 
 
 
@@ -316,6 +338,8 @@ def start_bot():
         cprint("e.Post liked",'yellow')
         cprint("f.Recently liked post by the user", 'yellow')
         cprint("g.Comment on users post",'yellow')
+        cprint("h.Delete bad comments",'yellow')
+
         cprint("q.Exit",'yellow')
 
         choice = raw_input("Enter you choice: ")
@@ -343,6 +367,10 @@ def start_bot():
         elif choice == "g":
             insta_username = raw_input("Enter username : ")
             comment_a_post(insta_username)
+
+        elif choice == "g":
+            insta_username = raw_input("Enter username : ")
+            dlt_negative_comment(insta_username)
 
         elif choice == "q":
             exit()
