@@ -299,7 +299,7 @@ def dlt_negative_comment(insta_username):
                 blob = TextBlob(comment_text, analyzer=NaiveBayesAnalyzer())
 
                 if (blob.sentiment.p_neg > blob.sentiment.p_pos):
-                    print 'Negative comment : %s' % (comment_text)
+                    cprint('Negative comment : %s' % (comment_text),'red')
                     delete_url = (BASE_URL + 'media/%s/comments/%s/?access_token=%s') % (media_id, comment_id, app_access_token)
                     delete_info = requests.delete(delete_url).json()
 
@@ -310,7 +310,7 @@ def dlt_negative_comment(insta_username):
                         cprint('Unable to delete comment!','blue')
 
                 else:
-                    cprint('Positive comment','yellow')
+                    cprint('Positive comment : %s' % (comment_text),'yellow')
 
         else:
             cprint('There are no existing comments on the post!','yellow')
@@ -321,6 +321,59 @@ def dlt_negative_comment(insta_username):
     choice()
 
 
+def list_of_comment(insta_username):
+    media_id = get_post_id(insta_username)
+    if media_id == None:
+        print 'user does not exist'
+        exit()
+    #payload = {"access_token": app_access_token}
+    request_url = (BASE_URL + 'media/%s/comments?access_token=%s') % (media_id,app_access_token)
+
+    comments_on_post = requests.get(request_url).json()
+
+    if comments_on_post['meta']['code'] == 200:
+
+        if len(comments_on_post['data']):
+            for x in range(0, len(comments_on_post['data'])):
+                #comment_id = liked_media['data'][x]['id']
+                comment_text = comments_on_post['data'][x]['text']
+                cprint('%s' % (comment_text),'green')
+
+        else:
+            cprint("No Comment",'yellow')
+
+    else:
+        cprint('ERROR','red')
+
+    choice()
+
+
+
+
+def list_of_likes(insta_username):
+    media_id = get_post_id(insta_username)
+    if media_id == None:
+        print 'user does not exist'
+        exit()
+
+    request_url = (BASE_URL + 'media/%s/likes?access_token=%s') % (media_id,app_access_token)
+
+    liked_media = requests.get(request_url).json()
+
+    if liked_media['meta']['code'] == 200:
+
+        if len(liked_media['data']):
+            for x in range(0, len(liked_media['data'])):
+                liked_post = liked_media['data'][x]['username']
+                print '%s\n' % (liked_post)
+
+        else:
+            cprint("No likes", 'yellow')
+
+    else:
+        cprint('ERROR', 'red')
+
+    choice()
 
 
 
@@ -334,11 +387,13 @@ def start_bot():
         cprint("a.Get your own details",'yellow')
         cprint("b.Get details of a user by username",'yellow')
         cprint("c.Get your own recent post",'yellow')
-        cprint("d.Get the recent post of a user by username",'yellow')
+        cprint("d.Get the recent post of a user",'yellow')
         cprint("e.Post liked",'yellow')
         cprint("f.Recently liked post by the user", 'yellow')
-        cprint("g.Comment on users post",'yellow')
-        cprint("h.Delete bad comments",'yellow')
+        cprint("g.List of likes on users post", 'yellow')
+        cprint("h.Comment on users post",'yellow')
+        cprint("i.List of comments on users post", 'yellow')
+        cprint("j.Delete bad comments",'yellow')
 
         cprint("q.Exit",'yellow')
 
@@ -366,9 +421,17 @@ def start_bot():
 
         elif choice == "g":
             insta_username = raw_input("Enter username : ")
+            list_of_likes(insta_username)
+
+        elif choice == "h":
+            insta_username = raw_input("Enter username : ")
             comment_a_post(insta_username)
 
-        elif choice == "g":
+        elif choice == "i":
+            insta_username = raw_input("Enter username : ")
+            list_of_comment(insta_username)
+
+        elif choice == "j":
             insta_username = raw_input("Enter username : ")
             dlt_negative_comment(insta_username)
 
