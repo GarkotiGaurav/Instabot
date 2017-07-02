@@ -246,7 +246,7 @@ def recently_liked_post():
             image_name = recently_liked['data'][0]['id'] + '.jpeg'
             image_url = recently_liked['data'][0]['images']['standard_resolution']['url']
             urllib.urlretrieve(image_url, image_name)
-            print 'Image has been successufully downloaded'
+            cprint('Image has been successufully downloaded','green')
 
         else:
             print 'Post not exist'
@@ -377,6 +377,42 @@ def list_of_likes(insta_username):
 
 
 
+
+def media_of_own_choice(insta_username):
+    media_id = get_user_id(insta_username)
+
+    if media_id == None:
+        print 'user does not exist'
+
+    request_url = (BASE_URL + 'users/%s/media/recent/?access_token=%s') % (media_id, app_access_token)
+    user_post = requests.get(request_url).json()
+
+    if user_post['meta']['code'] == 200:
+
+        if len(user_post['data']):
+
+            number = raw_input("Which pot do you wants to download : ")
+
+            number = int(number)
+
+            post = number - 1
+            image_name = user_post['data'][post]['id'] + '.jpeg'
+            image_url = user_post['data'][post]['images']['standard_resolution']['url']
+            urllib.urlretrieve(image_url, image_name)
+            
+            cprint('Image has been successfully downloaded!','green')
+
+        else:
+            cprint('Post does not exist','yellow')
+
+    else:
+        cprint('ERROR','red')
+
+    choice()
+
+
+
+
 #this is for showing list to user what he/she wants to do.
 def start_bot():
 
@@ -388,12 +424,13 @@ def start_bot():
         cprint("b.Get details of a user by username",'yellow')
         cprint("c.Get your own recent post",'yellow')
         cprint("d.Get the recent post of a user",'yellow')
-        cprint("e.Post liked",'yellow')
-        cprint("f.Recently liked post by the user", 'yellow')
-        cprint("g.List of likes on users post", 'yellow')
-        cprint("h.Comment on users post",'yellow')
-        cprint("i.List of comments on users post", 'yellow')
-        cprint("j.Delete bad comments",'yellow')
+        cprint("e.Get post of your own choice", 'yellow')
+        cprint("f.Post liked",'yellow')
+        cprint("g.Recently liked post by the user", 'yellow')
+        cprint("h.List of likes on users post", 'yellow')
+        cprint("i.Comment on users post",'yellow')
+        cprint("j.List of comments on users post", 'yellow')
+        cprint("k.Delete bad comments",'yellow')
 
         cprint("q.Exit",'yellow')
 
@@ -414,24 +451,29 @@ def start_bot():
 
         elif choice == "e":
             insta_username = raw_input("Enter username : ")
-            post_liked(insta_username)
+            media_of_own_choice(insta_username)
 
         elif choice == "f":
+            insta_username = raw_input("Enter username : ")
+            post_liked(insta_username)
+
+
+        elif choice == "g":
             recently_liked_post()
 
         elif choice == "g":
             insta_username = raw_input("Enter username : ")
             list_of_likes(insta_username)
 
-        elif choice == "h":
+        elif choice == "i":
             insta_username = raw_input("Enter username : ")
             comment_a_post(insta_username)
 
-        elif choice == "i":
+        elif choice == "j":
             insta_username = raw_input("Enter username : ")
             list_of_comment(insta_username)
 
-        elif choice == "j":
+        elif choice == "k":
             insta_username = raw_input("Enter username : ")
             dlt_negative_comment(insta_username)
 
