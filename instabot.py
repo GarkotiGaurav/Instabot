@@ -6,6 +6,9 @@ from textblob.sentiments import NaiveBayesAnalyzer
 from termcolor import *
 #form file named keys we have to import access token
 from keys import app_access_token
+#library for making word cloud.
+from wordcloud import WordCloud
+import matplotlib.pyplot as plt
 #Here base URL is the URL of instagram on which we have to work for.
 BASE_URL = 'https://api.instagram.com/v1/'
 colorama.init()
@@ -237,7 +240,7 @@ def recently_liked_post():
 
     request_url = (BASE_URL + 'users/self/media/liked?access_token==%s') % (app_access_token)
     payload = {'access_token': app_access_token}
-    recently_liked = requests.get(request_url, payload).json()
+    recently_liked = requests.get(request_url,payload).json()
 
     if recently_liked ['meta']['code'] == 200:
 
@@ -320,13 +323,13 @@ def dlt_negative_comment(insta_username):
 
     choice()
 
-
+#function for getting list of comments on a post
 def list_of_comment(insta_username):
     media_id = get_post_id(insta_username)
     if media_id == None:
         print 'user does not exist'
         exit()
-    #payload = {"access_token": app_access_token}
+
     request_url = (BASE_URL + 'media/%s/comments?access_token=%s') % (media_id,app_access_token)
 
     comments_on_post = requests.get(request_url).json()
@@ -335,7 +338,7 @@ def list_of_comment(insta_username):
 
         if len(comments_on_post['data']):
             for x in range(0, len(comments_on_post['data'])):
-                #comment_id = liked_media['data'][x]['id']
+
                 comment_text = comments_on_post['data'][x]['text']
                 cprint('%s' % (comment_text),'green')
 
@@ -349,7 +352,7 @@ def list_of_comment(insta_username):
 
 
 
-
+#function for getting list of like on any post
 def list_of_likes(insta_username):
     media_id = get_post_id(insta_username)
     if media_id == None:
@@ -377,8 +380,9 @@ def list_of_likes(insta_username):
 
 
 
-
+#function for downloading media of your own choice.
 def media_of_own_choice(insta_username):
+#this will take user id for fetching information.
     media_id = get_user_id(insta_username)
 
     if media_id == None:
@@ -391,15 +395,18 @@ def media_of_own_choice(insta_username):
 
         if len(user_post['data']):
 
-            number = raw_input("Which pot do you wants to download : ")
+#now we are suppose to ask which post u wants to download
+            number = raw_input("Which post do you want to download : ")
+
 
             number = int(number)
 
             post = number - 1
+
             image_name = user_post['data'][post]['id'] + '.jpeg'
             image_url = user_post['data'][post]['images']['standard_resolution']['url']
             urllib.urlretrieve(image_url, image_name)
-            
+
             cprint('Image has been successfully downloaded!','green')
 
         else:
@@ -407,6 +414,54 @@ def media_of_own_choice(insta_username):
 
     else:
         cprint('ERROR','red')
+
+    choice()
+
+#function for finding sub trends.
+def sub_trend():
+
+#dictionary for storing hastags.
+    hash_dict = {}
+
+#taking input for whic u wants to find subtrends
+    tag = raw_input("enter trend for whic you wants to find subtrend : ")
+    request_url = (BASE_URL + 'tags/%s/media/recent?access_token=%s') % (tag, app_access_token)
+    media_tag = requests.get(request_url).json()
+
+    if media_tag['meta']['code'] == 200:
+
+        if media_tag['data']:
+
+            for x in range(0, len(media_tag['data'])):
+                tags = media_tag['data'][x]['tags']
+                # print tags
+
+
+                for y in range(0, len(tags)):
+
+#if tag is present this condition will add on.
+                    if media_tag['data'][x]['tags'][y] in hash_dict:
+                        hash_dict[media_tag['data'][x]['tags'][y]] += 1
+
+                    else:
+                        hash_dict[media_tag['data'][x]['tags'][y]] = 1
+
+
+
+        else:
+            print'post not exist'
+
+    else:
+        print 'ERROR'
+
+#pop is used for deleting trends as we only wants subtrends.
+    hash_dict.pop(tag.lower(), None)
+    print hash_dict
+#for making word cloud for our subtrends.
+    wordcloud = WordCloud().generate_from_frequencies(hash_dict)
+
+    plt.imshow(wordcloud, interpolation='bilinear')
+    plt.show()
 
     choice()
 
@@ -431,6 +486,8 @@ def start_bot():
         cprint("i.Comment on users post",'yellow')
         cprint("j.List of comments on users post", 'yellow')
         cprint("k.Delete bad comments",'yellow')
+        cprint("l.Finding sub trends for any event", 'yellow')
+
 
         cprint("q.Exit",'yellow')
 
@@ -461,7 +518,7 @@ def start_bot():
         elif choice == "g":
             recently_liked_post()
 
-        elif choice == "g":
+        elif choice == "h":
             insta_username = raw_input("Enter username : ")
             list_of_likes(insta_username)
 
@@ -477,13 +534,16 @@ def start_bot():
             insta_username = raw_input("Enter username : ")
             dlt_negative_comment(insta_username)
 
+        elif choice == "l":
+            sub_trend()
+
         elif choice == "q":
             exit()
 
         else:
             cprint("wrong choice",'red')
 
-
+#called function which will aks what you want to do.
 start_bot()
 
 
