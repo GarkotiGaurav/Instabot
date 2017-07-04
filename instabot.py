@@ -16,6 +16,7 @@ colorama.init()
 #Access token for accessing perticular instagram account.
 #This is my access token(Gaurav Garkoti)
 app_access_token = '1776073792.0b7f1ea.2813a38481e84867be41ae4247bbd455'
+#username for this token = g_garkoti , apoorav613.
 
 
 
@@ -29,14 +30,16 @@ def choice():
         cprint('\nDo you want to continue or want to quit : ','blue')
         cprint('\nx.Continue : ', 'blue')
         cprint('\ny.Quite : ', 'blue')
-
+#here user have to give input for further process.
         choice = raw_input("Enter your choice ")
         if choice == 'x':
+#if user presses x then it will took us to start_bot function.
             start_bot()
         elif choice == 'y':
             exit()
         else:
             cprint('wrong choice','red')
+
 
 
 
@@ -58,13 +61,15 @@ def self_info():
         cprint('No. of followers: %s' % (self_info['data']['counts']['followed_by']),'green')
         cprint('No. of people you are following: %s' % (self_info['data']['counts']['follows']),'green')
         cprint('No. of posts: %s' % (self_info['data']['counts']['media']),'green')
-
+#if condition does not satesfied then it will have to show some meaningfull message.
     else:
         cprint('NO INFO','yellow')
 
   else:
     cprint('ERROR','red')
+#this will call us choice function.
   choice()
+
 
 
 
@@ -72,12 +77,14 @@ def self_info():
 #This function will get the user id which will help us in future.
 def get_user_id(insta_username):
 
+#redirect to given url and will take provided username and provided access token.
     request_url = (BASE_URL + 'users/search?q=%s&access_token=%s') % (insta_username,app_access_token)
     user_info = requests.get(request_url).json()
 
     if user_info['meta']['code'] == 200:
 
         if len(user_info['data']):
+#if condition becomes true then it will take id for respective user.
             return user_info['data'][0]['id']
 
         else:
@@ -128,6 +135,7 @@ def user_info(insta_username):
 
 
 
+
 #function to save own posts.
 def get_own_post():
 
@@ -151,6 +159,8 @@ def get_own_post():
         cprint('ERROR','red')
         exit()
     choice()
+
+
 
 
 
@@ -188,6 +198,7 @@ def get_user_post(insta_username):
 
 
 
+
 #post id for liking and to comment in others post.
 def get_post_id(insta_username):
 
@@ -204,6 +215,7 @@ def get_post_id(insta_username):
     if own_media['meta']['code']== 200:
 
         if len(own_media['data']):
+#if given condition become true then it will return post id.
             return own_media['data'][0]['id']
 
         else:
@@ -222,7 +234,9 @@ def post_liked(insta_username):
 
     media_id = get_post_id(insta_username)
     request_url = (BASE_URL + 'media/%s/likes') % (media_id)
+#payload is used for storing data.
     payload = {"access_token": app_access_token}
+#here we have to use post request for storing like which we have liked.
     print 'POST request url : %s' % (request_url)
     post_a_like = requests.post(request_url, payload).json()
 
@@ -236,8 +250,10 @@ def post_liked(insta_username):
 
 
 
-def recently_liked_post():
 
+#function for downloading recently liked post by the user.
+def recently_liked_post():
+#this url will took url for liked media.
     request_url = (BASE_URL + 'users/self/media/liked?access_token==%s') % (app_access_token)
     payload = {'access_token': app_access_token}
     recently_liked = requests.get(request_url,payload).json()
@@ -259,6 +275,7 @@ def recently_liked_post():
         exit()
 
     choice()
+
 
 
 
@@ -285,6 +302,9 @@ def comment_a_post(insta_username):
 
 
 
+
+
+#now we are supposed to delete bad comments from users post.
 def dlt_negative_comment(insta_username):
 
     media_id = get_post_id(insta_username)
@@ -299,11 +319,14 @@ def dlt_negative_comment(insta_username):
             for x in range(0, len(comment_info['data'])):
                 comment_id = comment_info['data'][x]['id']
                 comment_text = comment_info['data'][x]['text']
-                blob = TextBlob(comment_text, analyzer=NaiveBayesAnalyzer())
 
+#this is used for analyzing the text.
+                blob = TextBlob(comment_text, analyzer=NaiveBayesAnalyzer())
+#this will compare wether the text is positive or negative.
                 if (blob.sentiment.p_neg > blob.sentiment.p_pos):
                     cprint('Negative comment : %s' % (comment_text),'red')
                     delete_url = (BASE_URL + 'media/%s/comments/%s/?access_token=%s') % (media_id, comment_id, app_access_token)
+#delete request for deleting bad comments.
                     delete_info = requests.delete(delete_url).json()
 
                     if delete_info['meta']['code'] == 200:
@@ -322,6 +345,10 @@ def dlt_negative_comment(insta_username):
         cprint('ERROR!','red')
 
     choice()
+
+
+
+
 
 #function for getting list of comments on a post
 def list_of_comment(insta_username):
@@ -352,6 +379,8 @@ def list_of_comment(insta_username):
 
 
 
+
+
 #function for getting list of like on any post
 def list_of_likes(insta_username):
     media_id = get_post_id(insta_username)
@@ -377,6 +406,8 @@ def list_of_likes(insta_username):
         cprint('ERROR', 'red')
 
     choice()
+
+
 
 
 
@@ -416,6 +447,10 @@ def media_of_own_choice(insta_username):
         cprint('ERROR','red')
 
     choice()
+
+
+
+
 
 #function for finding sub trends.
 def sub_trend():
