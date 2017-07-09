@@ -9,6 +9,7 @@ from keys import app_access_token
 #library for making word cloud.
 from wordcloud import WordCloud
 import matplotlib.pyplot as plt
+import re
 #Here base URL is the URL of instagram on which we have to work for.
 BASE_URL = 'https://api.instagram.com/v1/'
 colorama.init()
@@ -459,7 +460,7 @@ def sub_trend():
     hash_dict = {}
 
 #taking input for whic u wants to find subtrends
-    tag = raw_input("enter trend for whic you wants to find subtrend : ")
+    tag = raw_input("enter trend for which you wants to find subtrend : ")
     request_url = (BASE_URL + 'tags/%s/media/recent?access_token=%s') % (tag, app_access_token)
     media_tag = requests.get(request_url).json()
 
@@ -522,58 +523,124 @@ def start_bot():
         cprint("j.List of comments on users post", 'yellow')
         cprint("k.Delete bad comments",'yellow')
         cprint("l.Finding sub trends for any event", 'yellow')
-
-
         cprint("q.Exit",'yellow')
+
 
         choice = raw_input("Enter you choice: ")
         if choice == "a":
             self_info()
 
+
         elif choice == "b":
             insta_username = raw_input("Enter username : ")
-            user_info(insta_username)
+            if not re.match("[a-z0-9_]*$", insta_username):
+                cprint("ERROR!Please enter a valid name less then 15 characters", 'red')
+
+            elif len(insta_username) > 15:
+                cprint('ERROR!Please enter a valid name less then 15 characters''red')
+
+            else:
+                user_info(insta_username)
+
 
         elif choice == "c":
             get_own_post()
 
         elif choice == "d":
             insta_username = raw_input("Enter username : ")
-            get_user_post(insta_username)
+            if not re.match('[a-z0-9_]*$', insta_username):
+                cprint("ERROR!Please enter a valid name less then 15 characters", 'red')
+
+            elif len(insta_username) > 15:
+                cprint('ERROR!Please enter a valid name less then 15 characters''red')
+
+            else:
+                get_user_post(insta_username)
+
 
         elif choice == "e":
             insta_username = raw_input("Enter username : ")
-            media_of_own_choice(insta_username)
+            if not re.match("[a-z0-9_]*$", insta_username):
+                cprint("ERROR!Please enter a valid name less then 15 characters", 'red')
+
+            elif len(insta_username) > 15:
+                cprint('ERROR!Please enter a valid name less then 15 characters''red')
+
+            else:
+                media_of_own_choice(insta_username)
+
 
         elif choice == "f":
             insta_username = raw_input("Enter username : ")
-            post_liked(insta_username)
+            if not re.match("[a-z0-9_]*$", insta_username):
+                cprint("ERROR!Please enter a valid name less then 15 characters", 'red')
+
+            elif len(insta_username) > 15:
+                cprint('ERROR!Please enter a valid name less then 15 characters''red')
+
+            else:
+                post_liked(insta_username)
 
 
         elif choice == "g":
             recently_liked_post()
 
+
         elif choice == "h":
             insta_username = raw_input("Enter username : ")
-            list_of_likes(insta_username)
+            if not re.match("[a-z0-9_]*$", insta_username):
+                cprint("ERROR!Please enter a valid name less then 15 characters", 'red')
+
+            elif len(insta_username) > 15:
+                cprint('ERROR!Please enter a valid name less then 15 characters''red')
+
+            else:
+                list_of_likes(insta_username)
+
 
         elif choice == "i":
             insta_username = raw_input("Enter username : ")
-            comment_a_post(insta_username)
+            if not re.match('[a-z0-9_]*$', insta_username):
+                cprint("ERROR!Please enter a valid name less then 15 characters!", 'red')
+
+            elif len(insta_username) > 15:
+                cprint('ERROR!Please enter a valid name less then 15 characters''red')
+
+            else:
+                comment_a_post(insta_username)
+
 
         elif choice == "j":
             insta_username = raw_input("Enter username : ")
-            list_of_comment(insta_username)
+            if not re.match("[a-z0-9_]*$", insta_username):
+                cprint("ERROR!Please enter a valid name less then 15 characters", 'red')
+
+            elif len(insta_username) > 15:
+                cprint('ERROR!Please enter a valid name less then 15 characters''red')
+
+            else:
+                list_of_comment(insta_username)
+
 
         elif choice == "k":
             insta_username = raw_input("Enter username : ")
-            dlt_negative_comment(insta_username)
+            if not re.match("[a-z0-9_]*$", insta_username):
+                cprint("ERROR!Please enter a valid name less then 15 characters", 'red')
+
+            elif len(insta_username) > 15:
+                cprint('ERROR!Please enter a valid name less then 15 characters''red')
+
+            else:
+                dlt_negative_comment(insta_username)
+
 
         elif choice == "l":
             sub_trend()
 
+
         elif choice == "q":
             exit()
+
 
         else:
             cprint("wrong choice",'red')
